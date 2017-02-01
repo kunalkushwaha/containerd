@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package containerd.v1;
+
+import "gogoproto/gogo.proto";
+
+
+service DebuggerService {
+	rpc DumpDebugInfo(CreateDebugInfoRequest) returns (CreateStackDumpResponse);
+}
+
+message CreateDebugInfoRequest {
+    bool stackDump = 1;
+    bool  heapDump = 2 ;
+    bool   memInfo = 3;
+}
+
+message CreateStackDumpResponse {
+    StackDumpResponse stackDumpResponse = 1;
+    HeapDumpResponse  heapDumpResponse = 2 ;
+    MemInfoResponse   memInfoResponse = 3;
+}
+
+message StackDumpResponse {
+    string  stackDump = 1;
+}
+
+message HeapDumpResponse {
+    string heapDump = 1;
+}
+
+message MemInfoResponse {
+    string memInfo = 1;
+}
