@@ -3,10 +3,10 @@ package main
 import (
 	"fmt"
 
+	gocontext "context"
 	"io/ioutil"
 	"log"
 	"net"
-
 	"time"
 
 	"github.com/docker/containerd/api/debugger"
@@ -23,14 +23,24 @@ var debuggerCommand = cli.Command{
 		if err != nil {
 			return err
 		}
-		fmt.Println(debuggerService)
+
+		response, err := debuggerService.DumpDebugInfo(gocontext.Background(), &debugger.CreateDebugRequest{})
+		if err != nil {
+			fmt.Println("-- After Making request --")
+			fmt.Println(err)
+			return err
+		}
+		fmt.Println("Containerd Version : ", response.Version)
+		fmt.Println("GitCommit : ", response.GitCommit)
+		fmt.Println("Stack Dump : ")
+		fmt.Println(response.StackDump)
 		return nil
 	},
 }
 
 func getDebuggerService(context *cli.Context) (debugger.DebuggerServiceClient, error) {
 	//FIXME: Should not be hardcode.
-	bindSocket := "/run/containerd/containerd-debug.sock"
+	bindSocket := "/run/containerd/containerd-dapi.sock"
 
 	// reset the logger for grpc to log to dev/null so that it does not mess with our stdio
 	grpclog.SetLogger(log.New(ioutil.Discard, "", log.LstdFlags))

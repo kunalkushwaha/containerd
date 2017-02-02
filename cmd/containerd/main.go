@@ -20,7 +20,9 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	"github.com/docker/containerd"
+	dapi "github.com/docker/containerd/api/debugger"
 	api "github.com/docker/containerd/api/execution"
+	dserver "github.com/docker/containerd/debugger"
 	"github.com/docker/containerd/events"
 	"github.com/docker/containerd/log"
 	"github.com/docker/containerd/supervisor"
@@ -117,6 +119,12 @@ func main() {
 		log.G(ctx).WithFields(logrus.Fields{"pprof": "/debug/pprof", "socket": debugPath}).Debug("serving pprof requests")
 		go serveProfiler(ctx, d)
 
+		dSocket, err := utils.CreateUnixSocket("/run/containerd/containerd-dapi.sock")
+		if err != nil {
+			return err
+		}
+		go debugServer(ctx, dSocket)
+
 		path := context.GlobalString("socket")
 		if path == "" {
 			return fmt.Errorf("--socket path cannot be empty")
@@ -195,10 +203,26 @@ func serveGRPC(ctx gocontext.Context, server *grpc.Server, l net.Listener) {
 	}
 }
 
+func debugServer(ctx gocontext.Context, l net.Listener) {
+	defer l.Close()
+	dService := dserver.NewService()
+	server := grpc.NewServer()
+	dapi.RegisterDebuggerServiceServer(server, dService)
+	log.G(ctx).WithField("socket", l.Addr()).Info("start DEBUG GRPC API")
+
+	err := server.Serve(l)
+	if err != nil {
+		log.G(ctx).WithError(err).Fatal("GRPC Debug server failure")
+	}
+
+}
+
 func serveProfiler(ctx gocontext.Context, l net.Listener) {
+	defer l.Close()
 	if err := http.Serve(l, nil); err != nil {
 		log.G(ctx).WithError(err).Fatal("profiler server failure")
 	}
+
 }
 
 // DumpStacks dumps the runtime stack.

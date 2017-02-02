@@ -9,11 +9,9 @@
 		debugger.proto
 
 	It has these top-level messages:
-		CreateDebugInfoRequest
-		CreateStackDumpResponse
-		StackDumpResponse
-		HeapDumpResponse
-		MemInfoResponse
+		CreateDebugRequest
+		DebugResponse
+		MemInfo
 */
 package debugger
 
@@ -46,114 +44,84 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
 
-type CreateDebugInfoRequest struct {
+type CreateDebugRequest struct {
 	StackDump bool `protobuf:"varint,1,opt,name=stackDump,proto3" json:"stackDump,omitempty"`
-	HeapDump  bool `protobuf:"varint,2,opt,name=heapDump,proto3" json:"heapDump,omitempty"`
-	MemInfo   bool `protobuf:"varint,3,opt,name=memInfo,proto3" json:"memInfo,omitempty"`
+	MemInfo   bool `protobuf:"varint,2,opt,name=memInfo,proto3" json:"memInfo,omitempty"`
 }
 
-func (m *CreateDebugInfoRequest) Reset()                    { *m = CreateDebugInfoRequest{} }
-func (*CreateDebugInfoRequest) ProtoMessage()               {}
-func (*CreateDebugInfoRequest) Descriptor() ([]byte, []int) { return fileDescriptorDebugger, []int{0} }
+func (m *CreateDebugRequest) Reset()                    { *m = CreateDebugRequest{} }
+func (*CreateDebugRequest) ProtoMessage()               {}
+func (*CreateDebugRequest) Descriptor() ([]byte, []int) { return fileDescriptorDebugger, []int{0} }
 
-type CreateStackDumpResponse struct {
-	StackDumpResponse *StackDumpResponse `protobuf:"bytes,1,opt,name=stackDumpResponse" json:"stackDumpResponse,omitempty"`
-	HeapDumpResponse  *HeapDumpResponse  `protobuf:"bytes,2,opt,name=heapDumpResponse" json:"heapDumpResponse,omitempty"`
-	MemInfoResponse   *MemInfoResponse   `protobuf:"bytes,3,opt,name=memInfoResponse" json:"memInfoResponse,omitempty"`
+type DebugResponse struct {
+	Version   string   `protobuf:"bytes,1,opt,name=Version,proto3" json:"Version,omitempty"`
+	GitCommit string   `protobuf:"bytes,2,opt,name=GitCommit,proto3" json:"GitCommit,omitempty"`
+	StackDump string   `protobuf:"bytes,3,opt,name=StackDump,proto3" json:"StackDump,omitempty"`
+	MemInfo   *MemInfo `protobuf:"bytes,4,opt,name=memInfo" json:"memInfo,omitempty"`
 }
 
-func (m *CreateStackDumpResponse) Reset()                    { *m = CreateStackDumpResponse{} }
-func (*CreateStackDumpResponse) ProtoMessage()               {}
-func (*CreateStackDumpResponse) Descriptor() ([]byte, []int) { return fileDescriptorDebugger, []int{1} }
+func (m *DebugResponse) Reset()                    { *m = DebugResponse{} }
+func (*DebugResponse) ProtoMessage()               {}
+func (*DebugResponse) Descriptor() ([]byte, []int) { return fileDescriptorDebugger, []int{1} }
 
-type StackDumpResponse struct {
-	StackDump string `protobuf:"bytes,1,opt,name=stackDump,proto3" json:"stackDump,omitempty"`
+type MemInfo struct {
+	Alloc      uint64 `protobuf:"varint,1,opt,name=Alloc,proto3" json:"Alloc,omitempty"`
+	TotalAlloc uint64 `protobuf:"varint,2,opt,name=TotalAlloc,proto3" json:"TotalAlloc,omitempty"`
+	Sys        uint64 `protobuf:"varint,3,opt,name=Sys,proto3" json:"Sys,omitempty"`
+	HeapAlloc  uint64 `protobuf:"varint,4,opt,name=HeapAlloc,proto3" json:"HeapAlloc,omitempty"`
+	HeapSys    uint64 `protobuf:"varint,5,opt,name=HeapSys,proto3" json:"HeapSys,omitempty"`
+	StackInuse uint64 `protobuf:"varint,6,opt,name=StackInuse,proto3" json:"StackInuse,omitempty"`
+	StackSys   uint64 `protobuf:"varint,7,opt,name=StackSys,proto3" json:"StackSys,omitempty"`
 }
 
-func (m *StackDumpResponse) Reset()                    { *m = StackDumpResponse{} }
-func (*StackDumpResponse) ProtoMessage()               {}
-func (*StackDumpResponse) Descriptor() ([]byte, []int) { return fileDescriptorDebugger, []int{2} }
-
-type HeapDumpResponse struct {
-	HeapDump string `protobuf:"bytes,1,opt,name=heapDump,proto3" json:"heapDump,omitempty"`
-}
-
-func (m *HeapDumpResponse) Reset()                    { *m = HeapDumpResponse{} }
-func (*HeapDumpResponse) ProtoMessage()               {}
-func (*HeapDumpResponse) Descriptor() ([]byte, []int) { return fileDescriptorDebugger, []int{3} }
-
-type MemInfoResponse struct {
-	MemInfo string `protobuf:"bytes,1,opt,name=memInfo,proto3" json:"memInfo,omitempty"`
-}
-
-func (m *MemInfoResponse) Reset()                    { *m = MemInfoResponse{} }
-func (*MemInfoResponse) ProtoMessage()               {}
-func (*MemInfoResponse) Descriptor() ([]byte, []int) { return fileDescriptorDebugger, []int{4} }
+func (m *MemInfo) Reset()                    { *m = MemInfo{} }
+func (*MemInfo) ProtoMessage()               {}
+func (*MemInfo) Descriptor() ([]byte, []int) { return fileDescriptorDebugger, []int{2} }
 
 func init() {
-	proto.RegisterType((*CreateDebugInfoRequest)(nil), "containerd.v1.CreateDebugInfoRequest")
-	proto.RegisterType((*CreateStackDumpResponse)(nil), "containerd.v1.CreateStackDumpResponse")
-	proto.RegisterType((*StackDumpResponse)(nil), "containerd.v1.StackDumpResponse")
-	proto.RegisterType((*HeapDumpResponse)(nil), "containerd.v1.HeapDumpResponse")
-	proto.RegisterType((*MemInfoResponse)(nil), "containerd.v1.MemInfoResponse")
+	proto.RegisterType((*CreateDebugRequest)(nil), "containerd.v1.CreateDebugRequest")
+	proto.RegisterType((*DebugResponse)(nil), "containerd.v1.DebugResponse")
+	proto.RegisterType((*MemInfo)(nil), "containerd.v1.MemInfo")
 }
-func (this *CreateDebugInfoRequest) GoString() string {
+func (this *CreateDebugRequest) GoString() string {
 	if this == nil {
 		return "nil"
 	}
-	s := make([]string, 0, 7)
-	s = append(s, "&debugger.CreateDebugInfoRequest{")
+	s := make([]string, 0, 6)
+	s = append(s, "&debugger.CreateDebugRequest{")
 	s = append(s, "StackDump: "+fmt.Sprintf("%#v", this.StackDump)+",\n")
-	s = append(s, "HeapDump: "+fmt.Sprintf("%#v", this.HeapDump)+",\n")
 	s = append(s, "MemInfo: "+fmt.Sprintf("%#v", this.MemInfo)+",\n")
 	s = append(s, "}")
 	return strings.Join(s, "")
 }
-func (this *CreateStackDumpResponse) GoString() string {
+func (this *DebugResponse) GoString() string {
 	if this == nil {
 		return "nil"
 	}
-	s := make([]string, 0, 7)
-	s = append(s, "&debugger.CreateStackDumpResponse{")
-	if this.StackDumpResponse != nil {
-		s = append(s, "StackDumpResponse: "+fmt.Sprintf("%#v", this.StackDumpResponse)+",\n")
-	}
-	if this.HeapDumpResponse != nil {
-		s = append(s, "HeapDumpResponse: "+fmt.Sprintf("%#v", this.HeapDumpResponse)+",\n")
-	}
-	if this.MemInfoResponse != nil {
-		s = append(s, "MemInfoResponse: "+fmt.Sprintf("%#v", this.MemInfoResponse)+",\n")
-	}
-	s = append(s, "}")
-	return strings.Join(s, "")
-}
-func (this *StackDumpResponse) GoString() string {
-	if this == nil {
-		return "nil"
-	}
-	s := make([]string, 0, 5)
-	s = append(s, "&debugger.StackDumpResponse{")
+	s := make([]string, 0, 8)
+	s = append(s, "&debugger.DebugResponse{")
+	s = append(s, "Version: "+fmt.Sprintf("%#v", this.Version)+",\n")
+	s = append(s, "GitCommit: "+fmt.Sprintf("%#v", this.GitCommit)+",\n")
 	s = append(s, "StackDump: "+fmt.Sprintf("%#v", this.StackDump)+",\n")
+	if this.MemInfo != nil {
+		s = append(s, "MemInfo: "+fmt.Sprintf("%#v", this.MemInfo)+",\n")
+	}
 	s = append(s, "}")
 	return strings.Join(s, "")
 }
-func (this *HeapDumpResponse) GoString() string {
+func (this *MemInfo) GoString() string {
 	if this == nil {
 		return "nil"
 	}
-	s := make([]string, 0, 5)
-	s = append(s, "&debugger.HeapDumpResponse{")
-	s = append(s, "HeapDump: "+fmt.Sprintf("%#v", this.HeapDump)+",\n")
-	s = append(s, "}")
-	return strings.Join(s, "")
-}
-func (this *MemInfoResponse) GoString() string {
-	if this == nil {
-		return "nil"
-	}
-	s := make([]string, 0, 5)
-	s = append(s, "&debugger.MemInfoResponse{")
-	s = append(s, "MemInfo: "+fmt.Sprintf("%#v", this.MemInfo)+",\n")
+	s := make([]string, 0, 11)
+	s = append(s, "&debugger.MemInfo{")
+	s = append(s, "Alloc: "+fmt.Sprintf("%#v", this.Alloc)+",\n")
+	s = append(s, "TotalAlloc: "+fmt.Sprintf("%#v", this.TotalAlloc)+",\n")
+	s = append(s, "Sys: "+fmt.Sprintf("%#v", this.Sys)+",\n")
+	s = append(s, "HeapAlloc: "+fmt.Sprintf("%#v", this.HeapAlloc)+",\n")
+	s = append(s, "HeapSys: "+fmt.Sprintf("%#v", this.HeapSys)+",\n")
+	s = append(s, "StackInuse: "+fmt.Sprintf("%#v", this.StackInuse)+",\n")
+	s = append(s, "StackSys: "+fmt.Sprintf("%#v", this.StackSys)+",\n")
 	s = append(s, "}")
 	return strings.Join(s, "")
 }
@@ -195,7 +163,7 @@ const _ = grpc.SupportPackageIsVersion4
 // Client API for DebuggerService service
 
 type DebuggerServiceClient interface {
-	DumpDebugInfo(ctx context.Context, in *CreateDebugInfoRequest, opts ...grpc.CallOption) (*CreateStackDumpResponse, error)
+	DumpDebugInfo(ctx context.Context, in *CreateDebugRequest, opts ...grpc.CallOption) (*DebugResponse, error)
 }
 
 type debuggerServiceClient struct {
@@ -206,8 +174,8 @@ func NewDebuggerServiceClient(cc *grpc.ClientConn) DebuggerServiceClient {
 	return &debuggerServiceClient{cc}
 }
 
-func (c *debuggerServiceClient) DumpDebugInfo(ctx context.Context, in *CreateDebugInfoRequest, opts ...grpc.CallOption) (*CreateStackDumpResponse, error) {
-	out := new(CreateStackDumpResponse)
+func (c *debuggerServiceClient) DumpDebugInfo(ctx context.Context, in *CreateDebugRequest, opts ...grpc.CallOption) (*DebugResponse, error) {
+	out := new(DebugResponse)
 	err := grpc.Invoke(ctx, "/containerd.v1.DebuggerService/DumpDebugInfo", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
@@ -218,7 +186,7 @@ func (c *debuggerServiceClient) DumpDebugInfo(ctx context.Context, in *CreateDeb
 // Server API for DebuggerService service
 
 type DebuggerServiceServer interface {
-	DumpDebugInfo(context.Context, *CreateDebugInfoRequest) (*CreateStackDumpResponse, error)
+	DumpDebugInfo(context.Context, *CreateDebugRequest) (*DebugResponse, error)
 }
 
 func RegisterDebuggerServiceServer(s *grpc.Server, srv DebuggerServiceServer) {
@@ -226,7 +194,7 @@ func RegisterDebuggerServiceServer(s *grpc.Server, srv DebuggerServiceServer) {
 }
 
 func _DebuggerService_DumpDebugInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateDebugInfoRequest)
+	in := new(CreateDebugRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -238,7 +206,7 @@ func _DebuggerService_DumpDebugInfo_Handler(srv interface{}, ctx context.Context
 		FullMethod: "/containerd.v1.DebuggerService/DumpDebugInfo",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DebuggerServiceServer).DumpDebugInfo(ctx, req.(*CreateDebugInfoRequest))
+		return srv.(DebuggerServiceServer).DumpDebugInfo(ctx, req.(*CreateDebugRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -256,7 +224,7 @@ var _DebuggerService_serviceDesc = grpc.ServiceDesc{
 	Metadata: "debugger.proto",
 }
 
-func (m *CreateDebugInfoRequest) Marshal() (dAtA []byte, err error) {
+func (m *CreateDebugRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalTo(dAtA)
@@ -266,7 +234,7 @@ func (m *CreateDebugInfoRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *CreateDebugInfoRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *CreateDebugRequest) MarshalTo(dAtA []byte) (int, error) {
 	var i int
 	_ = i
 	var l int
@@ -281,18 +249,8 @@ func (m *CreateDebugInfoRequest) MarshalTo(dAtA []byte) (int, error) {
 		}
 		i++
 	}
-	if m.HeapDump {
-		dAtA[i] = 0x10
-		i++
-		if m.HeapDump {
-			dAtA[i] = 1
-		} else {
-			dAtA[i] = 0
-		}
-		i++
-	}
 	if m.MemInfo {
-		dAtA[i] = 0x18
+		dAtA[i] = 0x10
 		i++
 		if m.MemInfo {
 			dAtA[i] = 1
@@ -304,7 +262,7 @@ func (m *CreateDebugInfoRequest) MarshalTo(dAtA []byte) (int, error) {
 	return i, nil
 }
 
-func (m *CreateStackDumpResponse) Marshal() (dAtA []byte, err error) {
+func (m *DebugResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalTo(dAtA)
@@ -314,45 +272,43 @@ func (m *CreateStackDumpResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *CreateStackDumpResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *DebugResponse) MarshalTo(dAtA []byte) (int, error) {
 	var i int
 	_ = i
 	var l int
 	_ = l
-	if m.StackDumpResponse != nil {
+	if len(m.Version) > 0 {
 		dAtA[i] = 0xa
 		i++
-		i = encodeVarintDebugger(dAtA, i, uint64(m.StackDumpResponse.Size()))
-		n1, err := m.StackDumpResponse.MarshalTo(dAtA[i:])
+		i = encodeVarintDebugger(dAtA, i, uint64(len(m.Version)))
+		i += copy(dAtA[i:], m.Version)
+	}
+	if len(m.GitCommit) > 0 {
+		dAtA[i] = 0x12
+		i++
+		i = encodeVarintDebugger(dAtA, i, uint64(len(m.GitCommit)))
+		i += copy(dAtA[i:], m.GitCommit)
+	}
+	if len(m.StackDump) > 0 {
+		dAtA[i] = 0x1a
+		i++
+		i = encodeVarintDebugger(dAtA, i, uint64(len(m.StackDump)))
+		i += copy(dAtA[i:], m.StackDump)
+	}
+	if m.MemInfo != nil {
+		dAtA[i] = 0x22
+		i++
+		i = encodeVarintDebugger(dAtA, i, uint64(m.MemInfo.Size()))
+		n1, err := m.MemInfo.MarshalTo(dAtA[i:])
 		if err != nil {
 			return 0, err
 		}
 		i += n1
 	}
-	if m.HeapDumpResponse != nil {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintDebugger(dAtA, i, uint64(m.HeapDumpResponse.Size()))
-		n2, err := m.HeapDumpResponse.MarshalTo(dAtA[i:])
-		if err != nil {
-			return 0, err
-		}
-		i += n2
-	}
-	if m.MemInfoResponse != nil {
-		dAtA[i] = 0x1a
-		i++
-		i = encodeVarintDebugger(dAtA, i, uint64(m.MemInfoResponse.Size()))
-		n3, err := m.MemInfoResponse.MarshalTo(dAtA[i:])
-		if err != nil {
-			return 0, err
-		}
-		i += n3
-	}
 	return i, nil
 }
 
-func (m *StackDumpResponse) Marshal() (dAtA []byte, err error) {
+func (m *MemInfo) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalTo(dAtA)
@@ -362,64 +318,45 @@ func (m *StackDumpResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *StackDumpResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *MemInfo) MarshalTo(dAtA []byte) (int, error) {
 	var i int
 	_ = i
 	var l int
 	_ = l
-	if len(m.StackDump) > 0 {
-		dAtA[i] = 0xa
+	if m.Alloc != 0 {
+		dAtA[i] = 0x8
 		i++
-		i = encodeVarintDebugger(dAtA, i, uint64(len(m.StackDump)))
-		i += copy(dAtA[i:], m.StackDump)
+		i = encodeVarintDebugger(dAtA, i, uint64(m.Alloc))
 	}
-	return i, nil
-}
-
-func (m *HeapDumpResponse) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *HeapDumpResponse) MarshalTo(dAtA []byte) (int, error) {
-	var i int
-	_ = i
-	var l int
-	_ = l
-	if len(m.HeapDump) > 0 {
-		dAtA[i] = 0xa
+	if m.TotalAlloc != 0 {
+		dAtA[i] = 0x10
 		i++
-		i = encodeVarintDebugger(dAtA, i, uint64(len(m.HeapDump)))
-		i += copy(dAtA[i:], m.HeapDump)
+		i = encodeVarintDebugger(dAtA, i, uint64(m.TotalAlloc))
 	}
-	return i, nil
-}
-
-func (m *MemInfoResponse) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *MemInfoResponse) MarshalTo(dAtA []byte) (int, error) {
-	var i int
-	_ = i
-	var l int
-	_ = l
-	if len(m.MemInfo) > 0 {
-		dAtA[i] = 0xa
+	if m.Sys != 0 {
+		dAtA[i] = 0x18
 		i++
-		i = encodeVarintDebugger(dAtA, i, uint64(len(m.MemInfo)))
-		i += copy(dAtA[i:], m.MemInfo)
+		i = encodeVarintDebugger(dAtA, i, uint64(m.Sys))
+	}
+	if m.HeapAlloc != 0 {
+		dAtA[i] = 0x20
+		i++
+		i = encodeVarintDebugger(dAtA, i, uint64(m.HeapAlloc))
+	}
+	if m.HeapSys != 0 {
+		dAtA[i] = 0x28
+		i++
+		i = encodeVarintDebugger(dAtA, i, uint64(m.HeapSys))
+	}
+	if m.StackInuse != 0 {
+		dAtA[i] = 0x30
+		i++
+		i = encodeVarintDebugger(dAtA, i, uint64(m.StackInuse))
+	}
+	if m.StackSys != 0 {
+		dAtA[i] = 0x38
+		i++
+		i = encodeVarintDebugger(dAtA, i, uint64(m.StackSys))
 	}
 	return i, nil
 }
@@ -451,13 +388,10 @@ func encodeVarintDebugger(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return offset + 1
 }
-func (m *CreateDebugInfoRequest) Size() (n int) {
+func (m *CreateDebugRequest) Size() (n int) {
 	var l int
 	_ = l
 	if m.StackDump {
-		n += 2
-	}
-	if m.HeapDump {
 		n += 2
 	}
 	if m.MemInfo {
@@ -466,50 +400,51 @@ func (m *CreateDebugInfoRequest) Size() (n int) {
 	return n
 }
 
-func (m *CreateStackDumpResponse) Size() (n int) {
+func (m *DebugResponse) Size() (n int) {
 	var l int
 	_ = l
-	if m.StackDumpResponse != nil {
-		l = m.StackDumpResponse.Size()
+	l = len(m.Version)
+	if l > 0 {
 		n += 1 + l + sovDebugger(uint64(l))
 	}
-	if m.HeapDumpResponse != nil {
-		l = m.HeapDumpResponse.Size()
+	l = len(m.GitCommit)
+	if l > 0 {
 		n += 1 + l + sovDebugger(uint64(l))
 	}
-	if m.MemInfoResponse != nil {
-		l = m.MemInfoResponse.Size()
-		n += 1 + l + sovDebugger(uint64(l))
-	}
-	return n
-}
-
-func (m *StackDumpResponse) Size() (n int) {
-	var l int
-	_ = l
 	l = len(m.StackDump)
 	if l > 0 {
 		n += 1 + l + sovDebugger(uint64(l))
 	}
-	return n
-}
-
-func (m *HeapDumpResponse) Size() (n int) {
-	var l int
-	_ = l
-	l = len(m.HeapDump)
-	if l > 0 {
+	if m.MemInfo != nil {
+		l = m.MemInfo.Size()
 		n += 1 + l + sovDebugger(uint64(l))
 	}
 	return n
 }
 
-func (m *MemInfoResponse) Size() (n int) {
+func (m *MemInfo) Size() (n int) {
 	var l int
 	_ = l
-	l = len(m.MemInfo)
-	if l > 0 {
-		n += 1 + l + sovDebugger(uint64(l))
+	if m.Alloc != 0 {
+		n += 1 + sovDebugger(uint64(m.Alloc))
+	}
+	if m.TotalAlloc != 0 {
+		n += 1 + sovDebugger(uint64(m.TotalAlloc))
+	}
+	if m.Sys != 0 {
+		n += 1 + sovDebugger(uint64(m.Sys))
+	}
+	if m.HeapAlloc != 0 {
+		n += 1 + sovDebugger(uint64(m.HeapAlloc))
+	}
+	if m.HeapSys != 0 {
+		n += 1 + sovDebugger(uint64(m.HeapSys))
+	}
+	if m.StackInuse != 0 {
+		n += 1 + sovDebugger(uint64(m.StackInuse))
+	}
+	if m.StackSys != 0 {
+		n += 1 + sovDebugger(uint64(m.StackSys))
 	}
 	return n
 }
@@ -527,56 +462,42 @@ func sovDebugger(x uint64) (n int) {
 func sozDebugger(x uint64) (n int) {
 	return sovDebugger(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (this *CreateDebugInfoRequest) String() string {
+func (this *CreateDebugRequest) String() string {
 	if this == nil {
 		return "nil"
 	}
-	s := strings.Join([]string{`&CreateDebugInfoRequest{`,
+	s := strings.Join([]string{`&CreateDebugRequest{`,
 		`StackDump:` + fmt.Sprintf("%v", this.StackDump) + `,`,
-		`HeapDump:` + fmt.Sprintf("%v", this.HeapDump) + `,`,
 		`MemInfo:` + fmt.Sprintf("%v", this.MemInfo) + `,`,
 		`}`,
 	}, "")
 	return s
 }
-func (this *CreateStackDumpResponse) String() string {
+func (this *DebugResponse) String() string {
 	if this == nil {
 		return "nil"
 	}
-	s := strings.Join([]string{`&CreateStackDumpResponse{`,
-		`StackDumpResponse:` + strings.Replace(fmt.Sprintf("%v", this.StackDumpResponse), "StackDumpResponse", "StackDumpResponse", 1) + `,`,
-		`HeapDumpResponse:` + strings.Replace(fmt.Sprintf("%v", this.HeapDumpResponse), "HeapDumpResponse", "HeapDumpResponse", 1) + `,`,
-		`MemInfoResponse:` + strings.Replace(fmt.Sprintf("%v", this.MemInfoResponse), "MemInfoResponse", "MemInfoResponse", 1) + `,`,
-		`}`,
-	}, "")
-	return s
-}
-func (this *StackDumpResponse) String() string {
-	if this == nil {
-		return "nil"
-	}
-	s := strings.Join([]string{`&StackDumpResponse{`,
+	s := strings.Join([]string{`&DebugResponse{`,
+		`Version:` + fmt.Sprintf("%v", this.Version) + `,`,
+		`GitCommit:` + fmt.Sprintf("%v", this.GitCommit) + `,`,
 		`StackDump:` + fmt.Sprintf("%v", this.StackDump) + `,`,
+		`MemInfo:` + strings.Replace(fmt.Sprintf("%v", this.MemInfo), "MemInfo", "MemInfo", 1) + `,`,
 		`}`,
 	}, "")
 	return s
 }
-func (this *HeapDumpResponse) String() string {
+func (this *MemInfo) String() string {
 	if this == nil {
 		return "nil"
 	}
-	s := strings.Join([]string{`&HeapDumpResponse{`,
-		`HeapDump:` + fmt.Sprintf("%v", this.HeapDump) + `,`,
-		`}`,
-	}, "")
-	return s
-}
-func (this *MemInfoResponse) String() string {
-	if this == nil {
-		return "nil"
-	}
-	s := strings.Join([]string{`&MemInfoResponse{`,
-		`MemInfo:` + fmt.Sprintf("%v", this.MemInfo) + `,`,
+	s := strings.Join([]string{`&MemInfo{`,
+		`Alloc:` + fmt.Sprintf("%v", this.Alloc) + `,`,
+		`TotalAlloc:` + fmt.Sprintf("%v", this.TotalAlloc) + `,`,
+		`Sys:` + fmt.Sprintf("%v", this.Sys) + `,`,
+		`HeapAlloc:` + fmt.Sprintf("%v", this.HeapAlloc) + `,`,
+		`HeapSys:` + fmt.Sprintf("%v", this.HeapSys) + `,`,
+		`StackInuse:` + fmt.Sprintf("%v", this.StackInuse) + `,`,
+		`StackSys:` + fmt.Sprintf("%v", this.StackSys) + `,`,
 		`}`,
 	}, "")
 	return s
@@ -589,7 +510,7 @@ func valueToStringDebugger(v interface{}) string {
 	pv := reflect.Indirect(rv).Interface()
 	return fmt.Sprintf("*%v", pv)
 }
-func (m *CreateDebugInfoRequest) Unmarshal(dAtA []byte) error {
+func (m *CreateDebugRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -612,10 +533,10 @@ func (m *CreateDebugInfoRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: CreateDebugInfoRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: CreateDebugRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: CreateDebugInfoRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: CreateDebugRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -639,26 +560,6 @@ func (m *CreateDebugInfoRequest) Unmarshal(dAtA []byte) error {
 			}
 			m.StackDump = bool(v != 0)
 		case 2:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field HeapDump", wireType)
-			}
-			var v int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowDebugger
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				v |= (int(b) & 0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			m.HeapDump = bool(v != 0)
-		case 3:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field MemInfo", wireType)
 			}
@@ -699,7 +600,7 @@ func (m *CreateDebugInfoRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *CreateStackDumpResponse) Unmarshal(dAtA []byte) error {
+func (m *DebugResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -722,17 +623,17 @@ func (m *CreateStackDumpResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: CreateStackDumpResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: DebugResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: CreateStackDumpResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: DebugResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field StackDumpResponse", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Version", wireType)
 			}
-			var msglen int
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowDebugger
@@ -742,30 +643,26 @@ func (m *CreateStackDumpResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				stringLen |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if msglen < 0 {
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
 				return ErrInvalidLengthDebugger
 			}
-			postIndex := iNdEx + msglen
+			postIndex := iNdEx + intStringLen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.StackDumpResponse == nil {
-				m.StackDumpResponse = &StackDumpResponse{}
-			}
-			if err := m.StackDumpResponse.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
+			m.Version = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field HeapDumpResponse", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field GitCommit", wireType)
 			}
-			var msglen int
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowDebugger
@@ -775,109 +672,22 @@ func (m *CreateStackDumpResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				stringLen |= (uint64(b) & 0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if msglen < 0 {
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
 				return ErrInvalidLengthDebugger
 			}
-			postIndex := iNdEx + msglen
+			postIndex := iNdEx + intStringLen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.HeapDumpResponse == nil {
-				m.HeapDumpResponse = &HeapDumpResponse{}
-			}
-			if err := m.HeapDumpResponse.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
+			m.GitCommit = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 3:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MemInfoResponse", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowDebugger
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthDebugger
-			}
-			postIndex := iNdEx + msglen
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if m.MemInfoResponse == nil {
-				m.MemInfoResponse = &MemInfoResponse{}
-			}
-			if err := m.MemInfoResponse.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipDebugger(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if skippy < 0 {
-				return ErrInvalidLengthDebugger
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *StackDumpResponse) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowDebugger
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: StackDumpResponse: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: StackDumpResponse: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field StackDump", wireType)
 			}
@@ -906,140 +716,11 @@ func (m *StackDumpResponse) Unmarshal(dAtA []byte) error {
 			}
 			m.StackDump = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipDebugger(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if skippy < 0 {
-				return ErrInvalidLengthDebugger
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *HeapDumpResponse) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowDebugger
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: HeapDumpResponse: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: HeapDumpResponse: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field HeapDump", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowDebugger
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthDebugger
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.HeapDump = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipDebugger(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if skippy < 0 {
-				return ErrInvalidLengthDebugger
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *MemInfoResponse) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowDebugger
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: MemInfoResponse: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MemInfoResponse: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
+		case 4:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field MemInfo", wireType)
 			}
-			var stringLen uint64
+			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowDebugger
@@ -1049,21 +730,208 @@ func (m *MemInfoResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				msglen |= (int(b) & 0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
+			if msglen < 0 {
 				return ErrInvalidLengthDebugger
 			}
-			postIndex := iNdEx + intStringLen
+			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.MemInfo = string(dAtA[iNdEx:postIndex])
+			if m.MemInfo == nil {
+				m.MemInfo = &MemInfo{}
+			}
+			if err := m.MemInfo.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
 			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipDebugger(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthDebugger
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MemInfo) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowDebugger
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MemInfo: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MemInfo: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Alloc", wireType)
+			}
+			m.Alloc = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowDebugger
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Alloc |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TotalAlloc", wireType)
+			}
+			m.TotalAlloc = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowDebugger
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.TotalAlloc |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Sys", wireType)
+			}
+			m.Sys = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowDebugger
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Sys |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 4:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field HeapAlloc", wireType)
+			}
+			m.HeapAlloc = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowDebugger
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.HeapAlloc |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 5:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field HeapSys", wireType)
+			}
+			m.HeapSys = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowDebugger
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.HeapSys |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 6:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field StackInuse", wireType)
+			}
+			m.StackInuse = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowDebugger
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.StackInuse |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 7:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field StackSys", wireType)
+			}
+			m.StackSys = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowDebugger
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.StackSys |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipDebugger(dAtA[iNdEx:])
@@ -1193,26 +1061,28 @@ var (
 func init() { proto.RegisterFile("debugger.proto", fileDescriptorDebugger) }
 
 var fileDescriptorDebugger = []byte{
-	// 335 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0x6c, 0x92, 0xcf, 0x4e, 0xf2, 0x40,
-	0x14, 0xc5, 0x19, 0x48, 0xbe, 0x0f, 0xae, 0x41, 0x60, 0x62, 0x94, 0x10, 0x32, 0x92, 0x26, 0x1a,
-	0x13, 0x93, 0x1a, 0xf0, 0x0d, 0x94, 0x05, 0xc6, 0xe8, 0x62, 0xd8, 0x9b, 0x14, 0xb8, 0x56, 0xa2,
-	0xed, 0x94, 0xfe, 0x61, 0xcd, 0xe3, 0xb1, 0x74, 0xe9, 0xd2, 0xf6, 0x09, 0x7c, 0x04, 0xd3, 0x29,
-	0xad, 0x74, 0x86, 0x5d, 0xef, 0xdc, 0x73, 0x7e, 0x33, 0xe7, 0xf6, 0xc2, 0xf1, 0x02, 0x67, 0x91,
-	0x6d, 0xa3, 0x6f, 0x7a, 0xbe, 0x08, 0x05, 0x6d, 0xce, 0x85, 0x1b, 0x5a, 0x4b, 0x17, 0xfd, 0x85,
-	0xb9, 0x1e, 0xf6, 0x4e, 0x6c, 0x61, 0x0b, 0xd9, 0xb9, 0x49, 0xbf, 0x32, 0x91, 0xf1, 0x01, 0xa7,
-	0xf7, 0x3e, 0x5a, 0x21, 0x8e, 0x53, 0xf3, 0x83, 0xfb, 0x2a, 0x38, 0xae, 0x22, 0x0c, 0x42, 0xda,
-	0x87, 0x46, 0x10, 0x5a, 0xf3, 0xf7, 0x71, 0xe4, 0x78, 0x5d, 0x32, 0x20, 0x57, 0x75, 0xfe, 0x77,
-	0x40, 0x7b, 0x50, 0x7f, 0x43, 0xcb, 0x93, 0xcd, 0xaa, 0x6c, 0x16, 0x35, 0xed, 0xc2, 0x7f, 0x07,
-	0x9d, 0x94, 0xd5, 0xad, 0xc9, 0x56, 0x5e, 0x1a, 0x9b, 0x2a, 0x9c, 0x65, 0xd7, 0x4d, 0x73, 0x12,
-	0xc7, 0xc0, 0x13, 0x6e, 0x80, 0xf4, 0x19, 0x3a, 0x81, 0x7a, 0x28, 0xef, 0x3d, 0x1a, 0x0d, 0xcc,
-	0x52, 0x14, 0x53, 0x33, 0x73, 0xdd, 0x4a, 0x1f, 0xa1, 0x9d, 0xbf, 0xa8, 0xc0, 0x55, 0x25, 0xee,
-	0x5c, 0xc1, 0x4d, 0x14, 0x19, 0xd7, 0x8c, 0x74, 0x02, 0xad, 0x5d, 0x86, 0x82, 0x55, 0x93, 0x2c,
-	0xa6, 0xb0, 0x9e, 0xca, 0x2a, 0xae, 0xda, 0x8c, 0x21, 0x74, 0xf4, 0xec, 0xda, 0xac, 0x1b, 0x7b,
-	0xb3, 0x36, 0x4c, 0x68, 0xab, 0x4f, 0x2c, 0xcd, 0x3f, 0x33, 0x14, 0xb5, 0x71, 0x0d, 0x2d, 0xe5,
-	0x19, 0xfb, 0xbf, 0x24, 0x53, 0xe7, 0xe5, 0x68, 0x05, 0xad, 0xf1, 0x6e, 0x6f, 0xa6, 0xe8, 0xaf,
-	0x97, 0x73, 0xa4, 0x2f, 0xd0, 0x4c, 0x39, 0xc5, 0x46, 0xd0, 0x0b, 0x25, 0xe4, 0xe1, 0x8d, 0xe9,
-	0x5d, 0x1e, 0x94, 0x69, 0x69, 0xef, 0xfa, 0xdb, 0x98, 0x55, 0xbe, 0x62, 0x56, 0xf9, 0x89, 0x19,
-	0xd9, 0x24, 0x8c, 0x6c, 0x13, 0x46, 0x3e, 0x13, 0x46, 0xbe, 0x13, 0x46, 0x66, 0xff, 0xe4, 0x62,
-	0xde, 0xfe, 0x06, 0x00, 0x00, 0xff, 0xff, 0xbf, 0xdd, 0x37, 0xe3, 0xcf, 0x02, 0x00, 0x00,
+	// 367 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0x64, 0x52, 0xcd, 0x4e, 0xea, 0x40,
+	0x14, 0x66, 0xa0, 0xfc, 0xcd, 0x0d, 0xf7, 0xde, 0x4c, 0xc8, 0x4d, 0x43, 0xc8, 0x84, 0xcb, 0x8a,
+	0x55, 0x55, 0x7c, 0x02, 0x85, 0x44, 0x49, 0x34, 0x31, 0xc5, 0xb8, 0x2f, 0xe5, 0xd8, 0x34, 0xd2,
+	0x4e, 0xed, 0x4c, 0x49, 0xdc, 0xf9, 0x16, 0x3e, 0x91, 0x09, 0x4b, 0x97, 0x2e, 0xa5, 0x4f, 0xe0,
+	0x23, 0x98, 0x39, 0x03, 0x54, 0x70, 0x37, 0xdf, 0xf7, 0x9d, 0x9f, 0xef, 0x9c, 0x33, 0xf4, 0xf7,
+	0x1c, 0x66, 0x59, 0x10, 0x40, 0xea, 0x24, 0xa9, 0x50, 0x82, 0xb5, 0x7c, 0x11, 0x2b, 0x2f, 0x8c,
+	0x21, 0x9d, 0x3b, 0xcb, 0x93, 0x4e, 0x3b, 0x10, 0x81, 0x40, 0xe5, 0x48, 0xbf, 0x4c, 0x50, 0xff,
+	0x8a, 0xb2, 0x51, 0x0a, 0x9e, 0x82, 0xb1, 0x4e, 0x76, 0xe1, 0x31, 0x03, 0xa9, 0x58, 0x97, 0x36,
+	0xa5, 0xf2, 0xfc, 0x87, 0x71, 0x16, 0x25, 0x36, 0xe9, 0x91, 0x41, 0xc3, 0x2d, 0x08, 0x66, 0xd3,
+	0x7a, 0x04, 0xd1, 0x24, 0xbe, 0x17, 0x76, 0x19, 0xb5, 0x2d, 0xec, 0xbf, 0x10, 0xda, 0xda, 0x14,
+	0x92, 0x89, 0x88, 0x25, 0xe8, 0xd8, 0x3b, 0x48, 0x65, 0x28, 0x62, 0xac, 0xd3, 0x74, 0xb7, 0x50,
+	0xf7, 0xb8, 0x08, 0xd5, 0x48, 0x44, 0x51, 0xa8, 0xb0, 0x4e, 0xd3, 0x2d, 0x08, 0xad, 0x4e, 0x77,
+	0x0e, 0x2a, 0x46, 0xdd, 0x11, 0xec, 0xb8, 0x70, 0x60, 0xf5, 0xc8, 0xe0, 0xd7, 0xf0, 0x9f, 0xb3,
+	0x37, 0xac, 0x73, 0x6d, 0xd4, 0xc2, 0xd9, 0x2b, 0xa1, 0xf5, 0x0d, 0xc9, 0xda, 0xb4, 0x7a, 0xb6,
+	0x58, 0x08, 0x1f, 0x1d, 0x59, 0xae, 0x01, 0x8c, 0x53, 0x7a, 0x2b, 0x94, 0xb7, 0x30, 0x52, 0x19,
+	0xa5, 0x6f, 0x0c, 0xfb, 0x4b, 0x2b, 0xd3, 0x27, 0x89, 0x5e, 0x2c, 0x57, 0x3f, 0xb5, 0xc7, 0x4b,
+	0xf0, 0x12, 0x93, 0x60, 0x21, 0x5f, 0x10, 0x7a, 0x72, 0x0d, 0x74, 0x4e, 0x15, 0xb5, 0x2d, 0xd4,
+	0x9d, 0x70, 0x94, 0x49, 0x9c, 0x49, 0xb0, 0x6b, 0xa6, 0x53, 0xc1, 0xb0, 0x0e, 0x6d, 0x20, 0xd2,
+	0xa9, 0x75, 0x54, 0x77, 0x78, 0xe8, 0xd3, 0x3f, 0xe3, 0xcd, 0x99, 0xa7, 0x90, 0x2e, 0x43, 0x1f,
+	0xd8, 0x0d, 0x6d, 0xe9, 0xa5, 0x20, 0x8d, 0xf3, 0xfd, 0x3f, 0x58, 0xc6, 0xcf, 0x03, 0x77, 0xba,
+	0x07, 0x21, 0x7b, 0x47, 0x3b, 0xef, 0xae, 0xd6, 0xbc, 0xf4, 0xbe, 0xe6, 0xa5, 0xcf, 0x35, 0x27,
+	0xcf, 0x39, 0x27, 0xab, 0x9c, 0x93, 0xb7, 0x9c, 0x93, 0x8f, 0x9c, 0x93, 0x59, 0x0d, 0x7f, 0xce,
+	0xe9, 0x57, 0x00, 0x00, 0x00, 0xff, 0xff, 0x47, 0x77, 0xcc, 0x90, 0x70, 0x02, 0x00, 0x00,
 }

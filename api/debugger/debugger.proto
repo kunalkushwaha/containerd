@@ -6,29 +6,29 @@ import "gogoproto/gogo.proto";
 
 
 service DebuggerService {
-	rpc DumpDebugInfo(CreateDebugInfoRequest) returns (CreateStackDumpResponse);
+	rpc DumpDebugInfo(CreateDebugRequest) returns (DebugResponse);
 }
 
-message CreateDebugInfoRequest {
+message CreateDebugRequest {
     bool stackDump = 1;
-    bool  heapDump = 2 ;
-    bool   memInfo = 3;
+    bool   memInfo = 2;
 }
 
-message CreateStackDumpResponse {
-    StackDumpResponse stackDumpResponse = 1;
-    HeapDumpResponse  heapDumpResponse = 2 ;
-    MemInfoResponse   memInfoResponse = 3;
+message DebugResponse {
+    string Version = 1;
+	string GitCommit = 2;
+	string StackDump = 3;
+    MemInfo   memInfo = 4;
 }
 
-message StackDumpResponse {
-    string  stackDump = 1;
-}
+message MemInfo {
+	uint64 Alloc       = 1;
+	uint64 TotalAlloc  = 2;
+	uint64 Sys         = 3;
 
-message HeapDumpResponse {
-    string heapDump = 1;
-}
+	uint64 HeapAlloc  = 4;
+	uint64 HeapSys    = 5;
 
-message MemInfoResponse {
-    string memInfo = 1;
+	uint64 StackInuse  = 6;
+	uint64 StackSys    = 7;
 }
