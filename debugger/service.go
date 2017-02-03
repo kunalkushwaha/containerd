@@ -1,12 +1,15 @@
 package debugger
 
 import (
+	"bufio"
+	"bytes"
 	"runtime"
 
 	context "golang.org/x/net/context"
 
 	"github.com/docker/containerd"
 	dapi "github.com/docker/containerd/api/debugger"
+	pp "github.com/maruel/panicparse/stack"
 )
 
 //Service struct
@@ -60,9 +63,19 @@ func (s *Service) DumpDebugInfo(ctx context.Context, r *dapi.CreateDebugRequest)
 	response.MemInfo, _ = s.buildMemInfo(ctx)
 	response.Version = containerd.Version
 	response.GitCommit = containerd.GitCommit
+
+	var memInfo dapi.MemInfo
+	memInfo.Alloc = response.MemInfo.Alloc
+	memInfo.TotalAlloc = response.MemInfo.TotalAlloc
+	memInfo.Sys = response.MemInfo.Sys
+	memInfo.HeapAlloc = response.MemInfo.HeapAlloc
+	memInfo.HeapSys = response.MemInfo.HeapSys
+	memInfo.StackInuse = response.MemInfo.StackInuse
+	memInfo.StackSys = response.MemInfo.StackSys
+
 	return &dapi.DebugResponse{
 		StackDump: response.Stack,
-		//	MemInfo:   response.MemInfo,
+		MemInfo:   &memInfo,
 		Version:   response.Version,
 		GitCommit: response.GitCommit,
 	}, nil
@@ -70,8 +83,10 @@ func (s *Service) DumpDebugInfo(ctx context.Context, r *dapi.CreateDebugRequest)
 
 func (s *Service) buildStackInfo(ctx context.Context) (string, error) {
 	var (
-		buf       []byte
-		stackSize int
+		buf            []byte
+		outBuffer      bytes.Buffer
+		stackSize      int
+		responseBuffer bytes.Buffer
 	)
 	bufferLen := 16384
 	for stackSize == len(buf) {
@@ -80,6 +95,22 @@ func (s *Service) buildStackInfo(ctx context.Context) (string, error) {
 		bufferLen *= 2
 	}
 	buf = buf[:stackSize]
+	goroutines, err := pp.ParseDump(bytes.NewReader(buf), bufio.NewWriter(&outBuffer))
+	if err != nil {
+		return "", err
+	}
+	p := &pp.Palette{}
+	buckets := pp.SortBuckets(pp.Bucketize(goroutines, pp.AnyValue))
+	srcLen, pkgLen := pp.CalcLengths(buckets, false)
+	for _, bucket := range buckets {
+		out1 := p.BucketHeader(&bucket, false, len(buckets) > 1)
+		out2 := p.StackLines(&bucket.Signature, srcLen, pkgLen, false)
+		responseBuffer.WriteString(out1)
+		responseBuffer.WriteString(out2)
+	}
+
+	return responseBuffer.String(), nil
+
 	return string(buf), nil
 }
 

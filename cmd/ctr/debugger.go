@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	gocontext "context"
+	"html/template"
 	"io/ioutil"
 	"log"
 	"net"
@@ -14,6 +16,20 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/grpclog"
 )
+
+const memTemplate = `
+-------- Memory Details --------
+MemAlloc	: {{.Alloc}}
+TotalAlloc	: {{.TotalAlloc}}
+SysAlloc	: {{.Sys}}
+
+HeapAlloc	: {{.HeapAlloc}}
+HeapSys		: {{.HeapSys}}
+
+StackInUse	: {{.StackInuse}}
+StackSys	: {{.StackSys}}
+--------------------------------
+`
 
 var debuggerCommand = cli.Command{
 	Name:  "debug",
@@ -26,14 +42,21 @@ var debuggerCommand = cli.Command{
 
 		response, err := debuggerService.DumpDebugInfo(gocontext.Background(), &debugger.CreateDebugRequest{})
 		if err != nil {
-			fmt.Println("-- After Making request --")
 			fmt.Println(err)
 			return err
 		}
 		fmt.Println("Containerd Version : ", response.Version)
 		fmt.Println("GitCommit : ", response.GitCommit)
+		t := template.New("Mem Template")
+		t, _ = t.Parse(memTemplate)
+		err = t.Execute(os.Stdout, response.MemInfo)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
 		fmt.Println("Stack Dump : ")
 		fmt.Println(response.StackDump)
+
 		return nil
 	},
 }
@@ -55,5 +78,4 @@ func getDebuggerService(context *cli.Context) (debugger.DebuggerServiceClient, e
 		return nil, err
 	}
 	return debugger.NewDebuggerServiceClient(conn), nil
-
 }
