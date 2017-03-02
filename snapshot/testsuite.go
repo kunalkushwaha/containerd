@@ -42,7 +42,7 @@ func checkSnapshotterStatActive(t *testing.T, snapshotter Snapshotter, work stri
 	if err != nil {
 		t.Fatal(err)
 	}
-	assert.Equal(t, si.Name, preparing)
+	assert.Equal(t, preparing, si.Name)
 	assert.Equal(t, KindActive, si.Kind)
 	assert.Equal(t, "", si.Parent)
 }
@@ -82,7 +82,7 @@ func checkSnapshotterStatCommitted(t *testing.T, snapshotter Snapshotter, work s
 	if err != nil {
 		t.Fatal(err)
 	}
-	assert.Equal(t, si.Name, committed)
+	assert.Equal(t, committed, si.Name)
 	assert.Equal(t, KindCommitted, si.Kind)
 	assert.Equal(t, "", si.Parent)
 
