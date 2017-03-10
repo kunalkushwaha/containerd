@@ -13,6 +13,8 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	contentapi "github.com/docker/containerd/api/services/content"
+	"github.com/docker/containerd/cmd/dist/distproto"
+	"github.com/docker/containerd/cmd/dist/distproto/registrydocker"
 	"github.com/docker/containerd/content"
 	"github.com/docker/containerd/log"
 	"github.com/docker/containerd/progress"
@@ -28,7 +30,7 @@ var fetchCommand = cli.Command{
 	Usage:     "fetch all content for an image into containerd",
 	ArgsUsage: "[flags] <remote> <object>",
 	Description: `Fetch an image into containerd.
-	
+
 This command ensures that containerd has all the necessary resources to build
 an image's rootfs and convert the configuration to a runtime format supported
 by containerd.
@@ -54,7 +56,7 @@ Most of this is experimental and there are few leaps to make this work.`,
 			return err
 		}
 
-		resolver, err := getResolver(ctx)
+		resolver, err := distproto.GetResolver(ctx)
 		if err != nil {
 			return err
 		}
@@ -332,11 +334,11 @@ func dispatch(ctx context.Context, ingester content.Ingester, fetcher remotes.Fe
 				"size":      desc.Size,
 			}))
 			switch desc.MediaType {
-			case MediaTypeDockerSchema2Manifest, ocispec.MediaTypeImageManifest:
+			case registrydocker.MediaTypeDockerSchema2Manifest, ocispec.MediaTypeImageManifest:
 				eg.Go(func() error {
 					return fetchManifest(ctx, ingester, fetcher, desc)
 				})
-			case MediaTypeDockerSchema2ManifestList, ocispec.MediaTypeImageIndex:
+			case registrydocker.MediaTypeDockerSchema2ManifestList, ocispec.MediaTypeImageIndex:
 				return fmt.Errorf("%v not yet supported", desc.MediaType)
 			default:
 				eg.Go(func() error {
