@@ -22,6 +22,7 @@ func SnapshotterSuite(t *testing.T, name string, snapshotterFn func(ctx context.
 	t.Run("StatComitted", makeTest(t, name, snapshotterFn, checkSnapshotterStatCommitted))
 	t.Run("TransitivityTest", makeTest(t, name, snapshotterFn, checkSnapshotterTransitivity))
 	t.Run("PreareViewFailingtest", makeTest(t, name, snapshotterFn, checkSnapshotterPrepareView))
+	t.Run("MultipleCommitTest", makeTest(t, name, snapshotterFn, checkSnapshotMultipleCommit))
 }
 
 func makeTest(t *testing.T, name string, snapshotterFn func(ctx context.Context, root string) (snapshot.Snapshotter, func(), error), fn func(ctx context.Context, t *testing.T, snapshotter snapshot.Snapshotter, work string)) func(t *testing.T) {
@@ -402,5 +403,30 @@ func checkSnapshotterPrepareView(ctx context.Context, t *testing.T, snapshotter 
 	_, err = snapshotter.View(ctx, viewLayer, snapA)
 	//must be err != nil
 	assert.NotNil(t, err)
+}
 
+func checkSnapshotMultipleCommit(ctx context.Context, t *testing.T, snapshotter snapshot.Snapshotter, work string) {
+	base, err := snapshotterPrepareMount(ctx, snapshotter, "base", "", work)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer testutil.Unmount(t, base)
+
+	if err = ioutil.WriteFile(filepath.Join(base, "foo"), []byte("foo\n"), 0777); err != nil {
+		t.Fatal(err)
+	}
+
+	snapA := filepath.Join(work, "snapA")
+	if err = snapshotter.Commit(ctx, snapA, base); err != nil {
+		t.Fatal(err)
+	}
+
+	if err = ioutil.WriteFile(filepath.Join(base, "foobar"), []byte("foobar\n"), 0777); err != nil {
+		t.Fatal(err)
+	}
+
+	snapB := filepath.Join(work, "snapB")
+	if err = snapshotter.Commit(ctx, snapB, base); err != nil {
+		t.Fatal(err)
+	}
 }
