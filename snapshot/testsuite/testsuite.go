@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"testing"
@@ -35,6 +36,7 @@ func SnapshotterSuite(t *testing.T, name string, snapshotterFn func(ctx context.
 	t.Run("RemoveDirectoryInLowerLayer", makeTest(name, snapshotterFn, checkRemoveDirectoryInLowerLayer))
 	t.Run("Chown", makeTest(name, snapshotterFn, checkChown))
 	t.Run("DirectoryPermissionOnCommit", makeTest(name, snapshotterFn, checkDirectoryPermissionOnCommit))
+	t.Run("RemovalInuseSnapshot", makeTest(name, snapshotterFn, checkRemovalInuseSnapshot))
 
 	// Rename test still fails on some kernels with overlay
 	//t.Run("Rename", makeTest(name, snapshotterFn, checkRename))
@@ -434,6 +436,54 @@ func checkSnapshotterPrepareView(ctx context.Context, t *testing.T, snapshotter 
 	_, err = snapshotter.View(ctx, viewLayer, snapA)
 	//must be err != nil
 	assert.NotNil(t, err)
+
+}
+
+//make sure Remove() fails for in-use snapshots
+func checkRemovalInuseSnapshot(ctx context.Context, t *testing.T, snapshotter snapshot.Snapshotter, work string) {
+	base, err := snapshotterPrepareMount(ctx, snapshotter, "base", "", work)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer testutil.Unmount(t, base)
+
+	committedBase := filepath.Join(work, "committed-base")
+	if err = snapshotter.Commit(ctx, committedBase, base); err != nil {
+		t.Fatal(err)
+	}
+
+	// Create newLayer layer
+	newLayer := filepath.Join(work, "newlayer")
+	if err = os.MkdirAll(newLayer, 0777); err != nil {
+		t.Fatal(err)
+	}
+
+	mounts, err := snapshotter.Prepare(ctx, newLayer, committedBase)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err = mount.MountAll(mounts, newLayer); err != nil {
+		t.Fatal(err)
+	}
+
+	if err = ioutil.WriteFile(filepath.Join(newLayer, "foo"), []byte("foo\n"), 0777); err != nil {
+		t.Fatal(err)
+	}
+
+	file, err := os.Open(filepath.Join(newLayer, "foo")) // For read access.
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	//Removal from newlayer to base should not fail, as file is still open.
+	err = snapshotter.Remove(ctx, newLayer)
+	if err == nil {
+		t.Fatal("newLayer removal successfull, should have failed.")
+	}
+
+	file.Close()
+	testutil.Unmount(t, newLayer)
 
 }
 
